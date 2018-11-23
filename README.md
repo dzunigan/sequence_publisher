@@ -13,7 +13,7 @@ Image sequence publisher package for ASL image sequences
    ```
 * ROS (Kinetic Kame with catkin workspace)
 
-   See [ROS installation](http://wiki.ros.org/kinetic/Installation) and [catkin documentation](http://wiki.ros.org/catkin)
+   See [ROS installation](http://wiki.ros.org/kinetic/Installation) and [catkin documentation](http://wiki.ros.org/catkin).
 
 * Boost (1.58.0.1ubuntu1)
    ```
@@ -27,13 +27,11 @@ Image sequence publisher package for ASL image sequences
    
 ## 2. Build
 
-Once all dependencies are installed, proceed to build the source code within a catkin workspace (see [catkin tutorials](http://wiki.ros.org/catkin/Tutorials).)
+Once all dependencies are installed, proceed to build the source code within a catkin workspace (see [catkin tutorials](http://wiki.ros.org/catkin/Tutorials)).
 
 ## 3. Data Format
 
-The input text file (in BRTE format) should be a white space separated numeric only table. Rows containing non-numeric values (e.g. headers) should be preceded by the comment symbol '#'. The first column should represend a unique identifier and the second one the timestamp in seconds, with data 9 columns in total.
-
-The output CSV file (in ASL format) has the format specified by:
+The input timestamp association file should be in CSV format, specified by (ASL format):
 ```
 timestamp,filename
 ```
