@@ -146,6 +146,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/pcl_example_node.cpp)
 add_executable(sequence_publisher src/sequence_publisher.cpp)
+add_executable(stereo_publisher src/stereo_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -162,6 +163,7 @@ add_executable(sequence_publisher src/sequence_publisher.cpp)
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(sequence_publisher ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GFLAGS_LIBRARY} ${OpenCV_LIBRARIES})
+target_link_libraries(stereo_publisher ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GFLAGS_LIBRARY} ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##

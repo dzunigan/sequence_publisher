@@ -3,6 +3,7 @@
     "sequence_publisher"
 
 #define FLAGS_CASES                                                                                \
+    FLAG_CASE(string, timestamps, "", "Timestamps file")                                           \
     FLAG_CASE(uint64, o, 0, "Sequence offset")                                                     \
     FLAG_CASE(uint64, s, 0, "Sequence decimation")                                                 \
     FLAG_CASE(uint64, n, 0, "Maximum sequence length")                                             \
@@ -10,7 +11,6 @@
 
 #define ARGS_CASES                                                                                 \
     ARG_CASE(images_directory)                                                                     \
-    ARG_CASE(timestamps_file)                                                                      \
     ARG_CASE(topic)
 
 #include <signal.h>
@@ -56,12 +56,13 @@ void signal_handler(int sig) {
 }
 
 inline void ValidateFlags() {
+    if (!FLAGS_timestamps.empty())
+        RUNTIME_ASSERT(fs::is_regular_file(FLAGS_timestamps));
     RUNTIME_ASSERT(FLAGS_rate > 0.0);
 }
 
 inline void ValidateArgs() {
     RUNTIME_ASSERT(fs::is_directory(ARGS_images_directory));
-    RUNTIME_ASSERT(fs::is_regular_file(ARGS_timestamps_file));
 }
 
 template<typename Container>
@@ -125,7 +126,9 @@ int main(int argc, char* argv[]) {
     std::cout << "Loading..." << '\r' << std::flush;
 
     // timestamps
-    std::unordered_map<std::string, std::uint64_t> file2timestamp = timestamps::read(ARGS_timestamps_file);
+    std::unordered_map<std::string, std::uint64_t> file2timestamp;
+    if (!FLAGS_timestamps.empty())
+        file2timestamp = timestamps::read(FLAGS_timestamps);
 
     // base path
     fs::path base_path(ARGS_images_directory);
@@ -150,11 +153,15 @@ int main(int argc, char* argv[]) {
 
         // header
         std_msgs::Header header;
-        if (file2timestamp.find(image_name) == file2timestamp.end()) {
-            std::cout << "[Warning] No timestamp associated with file: " << image_name << std::endl;
-            continue;
+        if (!FLAGS_timestamps.empty()) {
+            if (file2timestamp.find(image_name) == file2timestamp.end()) {
+                std::cout << "[Warning] No timestamp associated with file: " << image_name << std::endl;
+                continue;
+            }
+            header.stamp = ros::Time(static_cast<double>(file2timestamp.at(image_name)) * 1e-9);
+        } else {
+            header.stamp = ros::Time(sequence_id::get_sid(image_name));
         }
-        header.stamp = ros::Time(static_cast<double>(file2timestamp.at(image_name)) * 1e-9);
 
         cv::Mat image = cv::imread((base_path / image_name).string(), CV_LOAD_IMAGE_COLOR);
         sensor_msgs::ImagePtr msg = cv_bridge::CvImage(header, "bgr8", image).toImageMsg();
